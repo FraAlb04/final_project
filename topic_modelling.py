@@ -1,3 +1,5 @@
+
+# Imports
 import nltk
 from nltk.corpus import wordnet as wn
 from nltk.stem import WordNetLemmatizer
@@ -6,7 +8,7 @@ from nltk.stem import WordNetLemmatizer
 un2wn_mapping = {"VERB": wn.VERB, "NOUN": wn.NOUN, "ADJ": wn.ADJ, "ADV": wn.ADV}
 lemmatizer = WordNetLemmatizer()
 
-# Load your token file (e.g., disney.txt)
+# Load the token file (e.g., disney.txt)
 with open('data_preprocessed/disney_tokenized.txt', 'r', encoding='utf-8') as f:
     words = f.read().split()  # a long list of tokens
 
@@ -22,7 +24,40 @@ for word, tag in tagged:
         lemma = lemmatizer.lemmatize(word)
     lemmatized_doc.append(lemma.lower())
 
-# Group into pseudo-documents (chunks of 100 tokens)
+
+''' Construct the document-term matrix '''
+# Imports
+from gensim import corpora
+import itertools
+
+# Creation of dictionary
+movie_dictionary = corpora.Dictionary(movie)
+print('Number of unique tokens:', len(movie_dictionary))
+
+# Filtering out rare and common words based on their frequency in the document 
+
+
+from collections import Counter
+
+# !!! I have randomly chosen 5 and 500 for now --> needs to be changed 
+word_counts = Counter(lemmatized_doc)
+filtered_doc = [word for word in lemmatized_doc if 5 <= word_counts[word] <= 500]
+
+# New dictionary and corpus
+movie_docs = [filtered_doc]
+movie_dictionary = corpora.Dictionary(movie_docs)
+
+# The document is converted to Bag-of-Words
+movie_bow_corpus = [movie_dictionary.doc2bow(doc) for doc in movie_docs]
+print(movie_bow_corpus[0][:50])
+
+
+# Applying the LDA model
+movie_ldamodel = models.ldamodel.LdaModel(movie_bow_corpus, num_topics=5, id2word = movie_dictionary, passes = 20)
+movie_ldamodel.show_topics(formatted=False, num_words=5)
+'''
+# IS THIS SECTION RELEVANT?
+Group into pseudo-documents (chunks of 100 tokens)
 doc_size = 100
 disney_docs = [lemmatized_doc[i:i+doc_size] for i in range(0, len(lemmatized_doc), doc_size)]
 
@@ -55,3 +90,4 @@ lda_model.save('models/disney_lda.model')
 dictionary.save('models/disney_dictionary.dict')
 
 print("\nLDA model and dictionary saved to /models")
+'''
