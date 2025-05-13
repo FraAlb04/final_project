@@ -1,3 +1,5 @@
+# References:
+# https://github.com/bloemj/AUC_TM_2025/blob/main/notebooks/12_Clustering_TopicModelling.ipynb
 
 # Imports
 import nltk
@@ -33,7 +35,7 @@ for word, tag in tagged:
     else:
         lemma = lemmatizer.lemmatize(word)
     lemma = lemma.lower()
-    if lemma not in stop_words:
+    if tag == "NOUN" and lemma not in stop_words: # only keep nouns
         lemmatized_doc.append(lemma)
 
 ''' Construct the document-term matrix '''
